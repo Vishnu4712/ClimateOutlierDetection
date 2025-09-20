@@ -15,6 +15,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
 @app.get("/")
 def root():
     return {"service": "Vector-Aware Anomaly API", "routes": ["/health", "/analyze"]}
