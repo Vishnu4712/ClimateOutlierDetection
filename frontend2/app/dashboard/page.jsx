@@ -76,20 +76,6 @@ export default function Dashboard() {
       // clone for preview
       const resClone = res.clone();
 
-      // trigger download
-      pushMsg("Preparing download…");
-      const blob = await res.blob();
-      const a = document.createElement("a");
-      const href = URL.createObjectURL(blob);
-      a.href = href;
-      const base = uploadedFile.name.replace(/\.csv(\.gz)?$/i, "");
-      a.download = `${base}_flagged.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(href);
-      pushMsg("Download started ✓");
-
       // quick preview (first 10 rows)
       const text = await resClone.text();
       const lines = text.split(/\r?\n/).slice(0, 11).join("\n");
@@ -191,76 +177,76 @@ export default function Dashboard() {
           </div>
 
           {/* Status + Preview */}
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white border border-blue-200 shadow-lg rounded-2xl p-8">
-              <div className="mb-4 text-2xl font-bold text-blue-700">Processing Status</div>
-              <ul className="space-y-2 text-lg">
+          <div className="flex justify-center">
+            <div className="bg-white border border-blue-200 shadow-lg rounded-2xl p-12 w-full max-w-3xl">
+              <div className="mb-4 text-3xl font-bold text-blue-700">Processing Status</div>
+              <ul className="space-y-4 text-xl">
                 <li className="flex justify-between items-center">
                   <span>File Upload</span>
-                  <span className="font-semibold text-blue-500">{uploadedFile ? "Done" : "Pending"}</span>
+                  <span className={`font-semibold ${uploadedFile ? 'text-blue-500' : 'text-blue-300'}`}>{uploadedFile ? "Done" : "Pending"}</span>
                 </li>
                 <li className="flex justify-between items-center">
                   <span>Analysis</span>
-                  <span className={`font-semibold ${isProcessing ? "text-blue-400" : "text-blue-500"}`}>{isProcessing ? "Processing" : "Pending"}</span>
+                  <span className={`font-semibold ${isProcessing ? 'text-blue-500 animate-pulse' : isProcessed ? 'text-blue-500' : 'text-blue-300'}`}>{isProcessing ? "Processing" : isProcessed ? "Done" : "Pending"}</span>
                 </li>
                 <li className="flex justify-between items-center">
                   <span>Results</span>
-                  <span className={`font-semibold ${isProcessed ? "text-blue-700" : "text-blue-500"}`}>{isProcessed ? "Ready" : "Pending"}</span>
+                  <span className={`font-semibold ${isProcessed ? 'text-blue-700' : 'text-blue-300'}`}>{isProcessed ? "Ready" : "Pending"}</span>
                 </li>
               </ul>
               {messages.length > 0 && (
-                <div className="mt-6 text-base text-blue-400">
+                <div className="mt-8 text-lg text-blue-400">
                   {messages.map((m, i) => (
                     <div key={i}>• {m}</div>
                   ))}
                 </div>
               )}
               {isProcessing && (
-                <div className="mt-4">
-                  <div className="w-full bg-blue-100 rounded h-2 overflow-hidden">
-                    <div className="h-2 bg-blue-500 animate-pulse" style={{ width: "60%" }} />
+                <div className="mt-6 w-full">
+                  <div className="relative h-4 bg-blue-100 rounded-full overflow-hidden">
+                    <div className="absolute left-0 top-0 h-full bg-blue-500 animate-pulse" style={{ width: '60%' }} />
                   </div>
-                  <div className="text-xs text-blue-400 mt-1">
-                    Large files may take a while; don’t close this tab.
+                  <div className="text-base text-blue-400 mt-2 text-right">
+                    Processing file, please wait…
+                  </div>
+                </div>
+              )}
+              {/* Download button after processing */}
+              {isProcessed && (
+                <div className="bg-white border border-blue-200 shadow-xl rounded-2xl p-8 mt-8">
+                  <div className="flex flex-col items-center">
+                    <CheckCircle className="h-12 w-12 text-blue-500 mb-2" />
+                    <div className="text-xl font-semibold text-blue-700 mb-1">{uploadedFile ? uploadedFile.name.replace(/\.csv(\.gz)?$/i, "_flagged.csv") : "output_flagged.csv"}</div>
+                    <div className="text-base text-blue-400 mb-6">{uploadedFile ? (uploadedFile.size / (1024 * 1024)).toFixed(2) : "-"} MB</div>
+                    <div className="flex gap-4 w-full max-w-md">
+                      <button
+                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-lg font-semibold py-3 rounded-lg shadow-lg"
+                        onClick={() => {
+                          if (!preview) return;
+                          const blob = new Blob([preview], { type: 'text/csv' });
+                          const a = document.createElement('a');
+                          a.href = URL.createObjectURL(blob);
+                          a.download = uploadedFile ? uploadedFile.name.replace(/\.csv(\.gz)?$/i, "_flagged.csv") : "output_flagged.csv";
+                          document.body.appendChild(a);
+                          a.click();
+                          a.remove();
+                          URL.revokeObjectURL(a.href);
+                        }}
+                      >
+                        Download
+                      </button>
+                      <button
+                        className="flex-1 border border-blue-500 text-blue-500 text-lg font-semibold py-3 rounded-lg bg-white hover:bg-blue-50"
+                        onClick={clearAll}
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
-            <div className="bg-white border border-blue-200 shadow-lg rounded-2xl p-8">
-              <div className="mb-4 text-2xl font-bold text-blue-700">About Processing</div>
-              <div className="text-lg text-blue-400 mb-2">
-                Our vectorized anomaly detection algorithm analyzes gridded meteorological data to identify outliers and unusual patterns in weather measurements.
-              </div>
-              <div className="mt-6">
-                <div className="mb-2 text-blue-700 font-semibold">Preview (first 10 rows)</div>
-                {preview ? (
-                  <pre className="text-sm overflow-auto max-h-80 whitespace-pre-wrap bg-blue-50 p-4 rounded-lg border border-blue-100">{preview}</pre>
-                ) : (
-                  <p className="text-base text-blue-300">No preview yet.</p>
-                )}
-              </div>
-            </div>
           </div>
-
-          {/* Results Section */}
-          {isProcessed && (
-            <div className="bg-white border border-blue-200 shadow-xl rounded-2xl p-8">
-              <div className="flex items-center gap-2 text-2xl font-semibold text-blue-700 mb-2">
-                <Download className="h-6 w-6 text-blue-400" />
-                Download Results
-              </div>
-              <div className="text-lg text-blue-400 mb-4">
-                Your file has been processed successfully. A download should have started.
-              </div>
-              <div className="bg-blue-50 rounded-lg p-6 text-center">
-                <CheckCircle className="h-12 w-12 text-blue-500 mx-auto mb-4" />
-                <p className="text-xl font-medium text-blue-700 mb-2">Processing Complete!</p>
-                <p className="text-base text-blue-400">
-                  Anomalies have been detected and flagged in your data.
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
