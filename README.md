@@ -54,7 +54,7 @@ Magnitude-only anomaly flags on rainfall/pollution often trigger false positives
 
 ## Contributors
 - Medhansh Rawat
-- Yash Shrivastavs
+- Yash Shrivastava
 - Vishnu
 - Bhavesh Goyal
 - Gaurav
