@@ -42,7 +42,7 @@ Magnitude-only anomaly flags on rainfall/pollution often trigger false positives
    ```
 4. Run the backend server (example):
    ```bash
-   uvicorn main:app --reload
+   uvicorn app:app --reload --port 8000
    ```
 5. Start the frontend development server:
    ```bash
@@ -50,7 +50,7 @@ Magnitude-only anomaly flags on rainfall/pollution often trigger false positives
    ```
 
 ## Demo
-- Run the frontend development server and navigate to `http://localhost:3000` to interact with the anomaly dashboard showcasing directional validation overlays.
+- Run the frontend development server and navigate to `http://localhost:8000` to interact with the anomaly dashboard showcasing directional validation overlays.
 
 ## Contributors
 - Medhansh Rawat
