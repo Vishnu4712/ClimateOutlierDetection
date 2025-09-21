@@ -58,3 +58,4 @@ Magnitude-only anomaly flags on rainfall/pollution often trigger false positives
 - Vishnu
 - Bhavesh Goyal
 - Gaurav
+- Keval Patel
