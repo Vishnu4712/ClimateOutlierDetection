@@ -1,0 +1,14 @@
+{
+  "name": "climate-outlier-detection",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend2 run dev",
+    "build": "npm --prefix frontend2 run build",
+    "start": "npm --prefix frontend2 run start",
+    "lint": "npm --prefix frontend2 run lint",
+    "vercel-build": "cd frontend2 && npm ci && npm run build"
+  },
+  "devDependencies": {
+    "next": "15.5.3"
+  }
+}
